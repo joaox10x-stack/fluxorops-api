@@ -5,9 +5,9 @@ const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const { v4: uuidv4 } = require("uuid");
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
-// FIREBASE_CREDENTIALS: cole o conteúdo do serviceAccountKey.json como variável
-// de ambiente no EasyPanel (em uma linha só, sem quebras)
+// Corrige o \n da private_key que fica corrompido em variáveis de ambiente
 const firebaseCreds = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+firebaseCreds.private_key = firebaseCreds.private_key.replace(/\\n/g, "\n");
 initializeApp({ credential: cert(firebaseCreds) });
 const db = getFirestore();
 
@@ -30,16 +30,14 @@ const hoje = () => new Date().toISOString().split("T")[0];
 const fmtStatus = (s) =>
   ({ pendente: "Pendente", em_rota: "Em rota", concluido: "Concluído" }[s] || s);
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HEALTH
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Health ────────────────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.send("FluxorOps API 🚀"));
 app.get("/health", (req, res) =>
   res.json({ status: "ok", ts: new Date().toISOString() })
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONSULTAS — usadas pelo chatbot n8n
+// CONSULTAS
 // ─────────────────────────────────────────────────────────────────────────────
 
 // GET /consulta/montador?empresa=ID&nome=João&data=YYYY-MM-DD
@@ -160,11 +158,8 @@ app.get("/consulta/resumo", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CRIAÇÃO DE PEDIDOS
+// CRIAÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
-
-// POST /pedidos
-// Body: { "empresa": "ID", "pedidos": [{ cliente, nf, endereco, dataAgendada, ... }] }
 app.post("/pedidos", async (req, res) => {
   const { empresa, pedidos } = req.body;
   if (!empresa)
