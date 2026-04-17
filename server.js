@@ -63,6 +63,7 @@ app.get("/consulta/montador", async (req, res) => {
       id: p.id, nf: p.nf, cliente: p.cliente,
       endereco: p.endereco, itens: p.itens,
       status: fmtStatus(p.status), montador: p.montador,
+      foto_url: p.foto_url || p.fotoUrl || null,
     })),
   });
 });
@@ -92,6 +93,7 @@ app.get("/consulta/nf", async (req, res) => {
       status: fmtStatus(r.status),
       responsavel: r.montador || r.motorista || "—",
       endereco: r.endereco, data: r.dataAgendada || r.dataEntrega,
+      foto_url: r.foto_url || r.fotoUrl || null,
     })),
   });
 });
